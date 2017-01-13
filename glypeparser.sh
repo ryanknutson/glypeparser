@@ -2,77 +2,81 @@
 
 # bash-spinner by tlatsas
 function _spinner() {
-    # $1 start/stop
-    #
-    # on start: $2 display message
-    # on stop : $2 process exit status
-    #           $3 spinner function pid (supplied from stop_spinner)
+  # $1 start/stop
+  #
+  # on start: $2 display message
+  # on stop : $2 process exit status
+  #           $3 spinner function pid (supplied from stop_spinner)
 
-    local on_success="DONE"
-    local on_fail="FAIL"
-    local white="\e[1;37m"
-    local green="\e[1;32m"
-    local red="\e[1;31m"
-    local nc="\e[0m"
+  local on_success="DONE"
+  local on_fail="FAIL"
+  local white="\e[1;37m"
+  local green="\e[1;32m"
+  local red="\e[1;31m"
+  local nc="\e[0m"
 
-    case $1 in
-        start)
-            # calculate the column where spinner and status msg will be displayed
-            let column=$(tput cols)-${#2}-8
-            # display message and position the cursor in $column column
-            echo -ne ${2}
-            printf "%${column}s"
+  case $1 in
+    start)
+      # calculate the column where spinner and status msg will be displayed
+      let column=$(tput cols)-${#2}-8
+      # display message and position the cursor in $column column
+      echo -ne ${2}
+      printf "%${column}s"
 
-            # start spinner
-            i=1
-            sp='\|/-'
-            delay=${SPINNER_DELAY:-0.15}
+      # start spinner
+      i=1
+      sp='\|/-'
+      delay=${SPINNER_DELAY:-0.15}
 
-            while :
-            do
-                printf "\b${sp:i++%${#sp}:1}"
-                sleep $delay
-            done
-            ;;
-        stop)
-            if [[ -z ${3} ]]; then
-                echo "spinner is not running.."
-                exit 1
-            fi
+      while :
+      do
+        printf "\b${sp:i++%${#sp}:1}"
+        sleep $delay
+      done
+    ;;
+    stop)
+      if [[ -z ${3} ]]; then
+        echo "spinner is not running.."
+        exit 1
+      fi
 
-            kill $3 > /dev/null 2>&1
+      kill $3 > /dev/null 2>&1
 
-            # inform the user uppon success or failure
-            echo -en "\b["
-            if [[ $2 -eq 0 ]]; then
-                echo -en "${green}${on_success}${nc}"
-            else
-                echo -en "${red}${on_fail}${nc}"
-            fi
-            echo -e "]"
-            ;;
-        *)
-            echo "invalid argument, try {start/stop}"
-            exit 1
-            ;;
-    esac
+      # inform the user uppon success or failure
+      echo -en "\b["
+      if [[ $2 -eq 0 ]]; then
+        echo -en "${green}${on_success}${nc}"
+      else
+        echo -en "${red}${on_fail}${nc}"
+      fi
+      echo -e "]"
+    ;;
+    *)
+      echo "invalid argument, try {start/stop}"
+      exit 1
+    ;;
+  esac
 }
 
 function start_spinner {
-    # $1 : msg to display
-    _spinner "start" "${1}" &
-    # set global spinner pid
-    _sp_pid=$!
-    disown
+  # $1 : msg to display
+  _spinner "start" "${1}" &
+  # set global spinner pid
+  _sp_pid=$!
+  disown
 }
 
 function stop_spinner {
-    # $1 : command exit status
-    _spinner "stop" $1 $_sp_pid
-    unset _sp_pid
+  # $1 : command exit status
+  _spinner "stop" $1 $_sp_pid
+  unset _sp_pid
 }
 
+# Set vars
 gp="Glype Parser v1\nUsage gparse.sh {arguments}\n-h Show this help message and exit.\n-p [path] Pick the path of your logs. If no path is selected, current directory will be used."
+GREN='\033[1;32m'
+NC='\033[0m' # No Color
+now=$(date +"%m_%d_%y")
 
 # Set command switches
 while getopts ":hp:" opt; do
@@ -80,43 +84,37 @@ while getopts ":hp:" opt; do
     h)
       echo -e $gp
       exit 1
-      ;;
+    ;;
     \?)
       echo "Invalid option: -$OPTARG"
       echo -e $gp
       exit 1
-      ;;
+    ;;
     p)
       cd ${OPTARG}
-      ;;
+    ;;
     :)
       echo "Error: option -$OPTARG requires an argument."
       echo -e $gp
       exit 1
-      ;;
+    ;;
   esac
 done
 
-GREN='\033[1;32m'
-NC='\033[0m' # No Color
-
-# Set the date variable.
-now=$(date +"%m_%d_%y")
-
 # Remove old files from today if they exist (more for a debugging use)
 {
-rm logfull_$now.log logstrip_$now.log logmin_$now.log
+  rm logfull_$now.log logstrip_$now.log logmin_$now.log
 } &> /dev/null
 
 # Test if there are logfiles in specified directory
 {
-cat *.log
+  cat *.log
 } &> /dev/null
 if [ "$?" = "0" ]; then
-    printf "[${GREN}Beginning Parse${NC}]\n"
+  printf "[${GREN}Beginning Parse${NC}]\n"
 else
-    echo "No logs found in specified directory!" 1>&2
-    exit 1
+  echo "No logs found in specified directory!" 1>&2
+  exit 1
 fi
 
 # Combine all the log files into one file.
@@ -152,11 +150,11 @@ stop_spinner $?
 read -r -p "Do you want to move old logs into a folder? [y/n] " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
-    mkdir logbu_$now
-    mv *.log logbu_$now/
-    printf "[${GREN}Moved logs successfully${NC}]"
+  mkdir logbu_$now
+  mv *.log logbu_$now/
+  printf "[${GREN}Moved logs successfully${NC}]"
 else
-    printf "[${GREN}Didn't move anything${NC}]"
+  printf "[${GREN}Didn't move anything${NC}]"
 fi
 
 echo
