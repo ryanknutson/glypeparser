@@ -9,6 +9,8 @@ printf "[${GREEN}Beginning Parse${NC}]\n"
 # Set the date variable.
 now=$(date +"%m_%d_%y")
 
+rm logfull_$now.log logstrip_$now.log logmin_$now.log
+
 # Combine all the log files into one file.
 start_spinner 'Condensing logs'
 cat *-*-*.log > logfull_$now.log
@@ -38,7 +40,20 @@ start_spinner 'Removing unsorted file'
 rm logmin1_$now.log
 stop_spinner $?
 
+read -r -p "Do you want to move old logs into a folder? [y/n] " response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
+then
+    start_spinner 'Moving logs'
+    mkdir logbu$now
+    mv *.log logbu$now/
+    stop_spinner $?
+else
+    printf "[${GREEN}Didn't move anything${NC}]"
+fi
+
 echo
 echo "Full, condensed log       logfull_$now.log"
 echo "Log with only urls        logstrip_$now.log"
 echo "Minimal log               logmin_$now.log"
+
+
