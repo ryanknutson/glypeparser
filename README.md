@@ -2,7 +2,7 @@
 Parses Glype logs (or possibly other logs containing urls) into compressed, readable formats.
 
 ### Usage 
-gparse.sh {arguments}
+glypeparser.sh {arguments}
 
 ```-h Show this help message and exit.```
 
