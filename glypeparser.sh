@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Gets the directory that the user is running the script from
+MY_PATH="`( cd \"$MY_PATH\" && pwd )`"
+if [ -z "$MY_PATH" ] ; then
+  exit 1
+fi
+
 # bash-spinner by tlatsas
 function _spinner() {
   # $1 start/stop
@@ -77,6 +83,8 @@ gp="Glype Parser v1\nUsage gparse.sh {arguments}\n-h Show this help message and 
 GREN='\033[1;32m'
 NC='\033[0m' # No Color
 now=$(date +"%m_%d_%y")
+
+cd "$MY_PATH"
 
 # Set command switches
 while getopts ":hp:" opt; do
