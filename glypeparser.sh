@@ -160,6 +160,7 @@ if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
   mkdir logbu_$now
   mv *.log logbu_$now/
+  mv logbu_$now/log* .
   printf "[${GREN}Moved logs successfully${NC}]"
 else
   printf "[${GREN}Didn't move anything${NC}]"
