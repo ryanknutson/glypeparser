@@ -2,6 +2,9 @@
 Parses Glype logs (or possibly other logs containing urls) into compressed, readable formats.
 
 ### Usage 
+
+No need to install, just run from any directory or move to /usr/local/bin/.
+
 glypeparser.sh {arguments}
 
 ```-h Show this help message and exit.```
